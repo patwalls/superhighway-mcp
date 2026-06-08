@@ -26,7 +26,7 @@ Add to your MCP client config (e.g. Claude Desktop's `claude_desktop_config.json
 }
 ```
 
-Restart your client. The agent now has seven tools: `web_search`, `news_search`, `scrape`, `geocode`, `nlp`, `email_verify`, and `convert` (csv↔json, md→html, html→md/text).
+Restart your client. The agent now has eight tools: web_search, news_search, scrape, geocode, nlp, email_verify, convert, and qr (QR code generation).
 
 ## Wallet
 

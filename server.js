@@ -78,6 +78,14 @@ const CONVERT_SCHEMA = {
   },
   required: ["from", "to", "data"],
 };
+const QR_SCHEMA = {
+  type: "object",
+  properties: {
+    data: { type: "string", description: "Text or URL to encode in the QR code." },
+    format: { type: "string", description: "Output: 'svg' (default) or 'dataurl' (PNG data-URI)." },
+  },
+  required: ["data"],
+};
 
 const clampLimit = (v) => (Number.isFinite(v) ? Math.max(1, Math.min(20, Number(v))) : 5);
 
@@ -148,9 +156,17 @@ const TOOLS = [
     build: (a) =>
       `/convert?from=${encodeURIComponent(String(a.from ?? "").trim())}&to=${encodeURIComponent(String(a.to ?? "").trim())}&data=${encodeURIComponent(String(a.data ?? ""))}`,
   },
+  {
+    name: "qr",
+    inputSchema: QR_SCHEMA,
+    description:
+      "Generate a QR code from text or a URL → an SVG string or PNG data-URI. Paid per call in USDC " +
+      "via x402 — no signup, no API key. Use to embed scannable codes in generated content or links.",
+    build: (a) => `/qr?data=${encodeURIComponent(String(a.data ?? ""))}&format=${encodeURIComponent(String(a.format ?? "svg"))}`,
+  },
 ];
 
-const server = new Server({ name: "superhighway", version: "0.7.0" }, { capabilities: { tools: {} } });
+const server = new Server({ name: "superhighway", version: "0.8.0" }, { capabilities: { tools: {} } });
 
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
   tools: TOOLS.map((t) => ({ name: t.name, description: t.description, inputSchema: t.inputSchema })),
