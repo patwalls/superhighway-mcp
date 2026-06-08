@@ -1,6 +1,6 @@
 {
   "name": "superhighway-mcp",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "MCP server exposing a web_search tool that AI agents pay for per query in USDC via x402 — no API key, no signup. Powered by Superhighway.",
   "type": "module",
   "bin": {

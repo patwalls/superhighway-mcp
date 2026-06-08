@@ -96,6 +96,11 @@ const SITEMAP_SCHEMA = {
   properties: { url: { type: "string", description: "A sitemap URL or a site root (we will try /sitemap.xml)." } },
   required: ["url"],
 };
+const UNFURL_SCHEMA = {
+  type: "object",
+  properties: { url: { type: "string", description: "The page URL to unfurl into a link-preview card." } },
+  required: ["url"],
+};
 
 const clampLimit = (v) => (Number.isFinite(v) ? Math.max(1, Math.min(20, Number(v))) : 5);
 
@@ -189,6 +194,15 @@ const TOOLS = [
       "Fetch a websites sitemap → the list of page URLs as JSON (handles sitemap indexes; give a sitemap URL or a site root). " +
       "Paid per call in USDC via x402 — no signup, no API key. Use to map a sites pages before crawling, auditing, or research.",
     build: (a) => `/sitemap?url=${encodeURIComponent(String(a.url ?? "").trim())}`,
+  },
+  {
+    name: "unfurl",
+    inputSchema: UNFURL_SCHEMA,
+    description:
+      "Unfurl a URL into a link-preview card → title, description, hero image, site name, canonical URL, favicon, and type " +
+      "(OpenGraph → Twitter Card → standard meta). Paid per call in USDC via x402 — no signup, no API key. Use to render link " +
+      "previews and enrich URLs without downloading the whole page (lighter than scrape).",
+    build: (a) => `/unfurl?url=${encodeURIComponent(String(a.url ?? "").trim())}`,
   },
 ];
 
