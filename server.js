@@ -64,6 +64,11 @@ const NLP_SCHEMA = {
   properties: { text: { type: "string", description: "The text to analyze." } },
   required: ["text"],
 };
+const EMAIL_SCHEMA = {
+  type: "object",
+  properties: { email: { type: "string", description: "The email address to verify." } },
+  required: ["email"],
+};
 
 const clampLimit = (v) => (Number.isFinite(v) ? Math.max(1, Math.min(20, Number(v))) : 5);
 
@@ -116,9 +121,18 @@ const TOOLS = [
       "API key. Use to triage, classify, or summarize text cheaply without a full LLM round-trip.",
     build: (a) => `/nlp?text=${encodeURIComponent(String(a.text ?? "").trim())}`,
   },
+  {
+    name: "email_verify",
+    inputSchema: EMAIL_SCHEMA,
+    description:
+      "Verify an email address: checks syntax, whether the domain accepts mail (MX), and flags " +
+      "disposable and role addresses → deliverable/risky/undeliverable. Paid per call in USDC via " +
+      "x402 — no signup, no API key. Use to clean lists and qualify contacts before outreach.",
+    build: (a) => `/email/verify?email=${encodeURIComponent(String(a.email ?? "").trim())}`,
+  },
 ];
 
-const server = new Server({ name: "superhighway", version: "0.5.0" }, { capabilities: { tools: {} } });
+const server = new Server({ name: "superhighway", version: "0.6.0" }, { capabilities: { tools: {} } });
 
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
   tools: TOOLS.map((t) => ({ name: t.name, description: t.description, inputSchema: t.inputSchema })),

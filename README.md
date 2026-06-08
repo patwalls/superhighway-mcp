@@ -26,7 +26,7 @@ Add to your MCP client config (e.g. Claude Desktop's `claude_desktop_config.json
 }
 ```
 
-Restart your client. The agent now has five tools: **`web_search`**, **`news_search`**, **`scrape`**, **`geocode`** (address ↔ coordinates), and **`nlp`** (language/sentiment/keywords/summary).
+Restart your client. The agent now has six tools: `web_search`, `news_search`, `scrape`, `geocode`, `nlp`, and `email_verify` (syntax + MX + disposable check).
 
 ## Wallet
 
