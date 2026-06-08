@@ -26,7 +26,7 @@ Add to your MCP client config (e.g. Claude Desktop's `claude_desktop_config.json
 }
 ```
 
-Restart your client. The agent now has a **`web_search(query, limit?)`** tool.
+Restart your client. The agent now has two tools: **`web_search(query, limit?)`** and **`news_search(query, limit?)`** (recent news).
 
 ## Wallet
 
@@ -39,7 +39,7 @@ Want to try free first? Set `X402_NETWORK=base-sepolia` and fund the wallet from
 
 ## What you get
 
-`web_search` returns ranked organic results as JSON:
+`web_search` (web) and `news_search` (recent news) each return results as JSON:
 
 ```json
 { "query": "...", "count": 5, "results": [ { "title": "...", "url": "...", "description": "..." } ] }

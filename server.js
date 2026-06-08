@@ -5,10 +5,10 @@ import { CallToolRequestSchema, ListToolsRequestSchema } from "@modelcontextprot
 import { wrapFetchWithPayment, createSigner } from "x402-fetch";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Superhighway MCP server — a `web_search` tool for any MCP agent (Claude, etc.).
+// Superhighway MCP server — paid search tools for any MCP agent (Claude, etc.).
 //
-// The agent calls web_search; under the hood this server GETs Superhighway's paid
-// /search endpoint, receives a 402, signs a USDC micro-payment with YOUR wallet
+// The agent calls a tool; under the hood this server GETs Superhighway's paid
+// endpoint, receives a 402, signs a USDC micro-payment with YOUR wallet
 // (AGENT_PRIVATE_KEY) via x402, retries, and returns results. No API key, no signup.
 //
 // Config (env, via your MCP client):
@@ -37,32 +37,43 @@ async function getPayFetch() {
   return payFetch;
 }
 
-const server = new Server({ name: "superhighway", version: "0.1.0" }, { capabilities: { tools: {} } });
+const TOOLS = [
+  {
+    name: "web_search",
+    path: "/search",
+    description:
+      "Real-time web search. Returns ranked organic results (title, url, snippet) as JSON " +
+      "from a multi-engine metasearch. Paid per call in USDC via x402 — no signup, no API key. " +
+      "Use for fresh facts, research, fact-checking, and grounding/RAG.",
+  },
+  {
+    name: "news_search",
+    path: "/news",
+    description:
+      "Real-time news search. Returns recent news articles (title, url, snippet, published date) " +
+      "as JSON from a multi-engine news metasearch. Paid per call in USDC via x402 — no signup, " +
+      "no API key. Use for current events, breaking news, monitoring, and time-sensitive facts.",
+  },
+];
+
+const inputSchema = {
+  type: "object",
+  properties: {
+    query: { type: "string", description: "The search query." },
+    limit: { type: "number", description: "Max results, 1-20 (default 5)." },
+  },
+  required: ["query"],
+};
+
+const server = new Server({ name: "superhighway", version: "0.2.0" }, { capabilities: { tools: {} } });
 
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
-  tools: [
-    {
-      name: "web_search",
-      description:
-        "Real-time web search. Returns ranked organic results (title, url, snippet) as JSON " +
-        "from a multi-engine metasearch. Paid per call in USDC via x402 — no signup, no API key. " +
-        "Use for fresh facts, current events, research, fact-checking, and grounding/RAG.",
-      inputSchema: {
-        type: "object",
-        properties: {
-          query: { type: "string", description: "The search query." },
-          limit: { type: "number", description: "Max results, 1-20 (default 5)." },
-        },
-        required: ["query"],
-      },
-    },
-  ],
+  tools: TOOLS.map((t) => ({ name: t.name, description: t.description, inputSchema })),
 }));
 
 server.setRequestHandler(CallToolRequestSchema, async (req) => {
-  if (req.params.name !== "web_search") {
-    throw new Error(`Unknown tool: ${req.params.name}`);
-  }
+  const tool = TOOLS.find((t) => t.name === req.params.name);
+  if (!tool) throw new Error(`Unknown tool: ${req.params.name}`);
   const args = req.params.arguments ?? {};
   const query = String(args.query ?? "").trim();
   if (!query) {
@@ -71,11 +82,11 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
   const limit = Number.isFinite(args.limit) ? Math.max(1, Math.min(20, Number(args.limit))) : 5;
   try {
     const pay = await getPayFetch();
-    const url = `${BASE_URL}/search?q=${encodeURIComponent(query)}&limit=${limit}`;
+    const url = `${BASE_URL}${tool.path}?q=${encodeURIComponent(query)}&limit=${limit}`;
     const res = await pay(url, { method: "GET" });
     if (!res.ok) {
       const body = await res.text();
-      return { content: [{ type: "text", text: `Search failed (${res.status}): ${body}` }], isError: true };
+      return { content: [{ type: "text", text: `Request failed (${res.status}): ${body}` }], isError: true };
     }
     const data = await res.json();
     return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
@@ -86,4 +97,4 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
 
 const transport = new StdioServerTransport();
 await server.connect(transport);
-console.error(`[superhighway-mcp] ready — tool: web_search · paying on ${NETWORK} via ${BASE_URL}`);
+console.error(`[superhighway-mcp] ready — tools: ${TOOLS.map((t) => t.name).join(", ")} · paying on ${NETWORK} via ${BASE_URL}`);
