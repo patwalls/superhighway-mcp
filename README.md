@@ -26,7 +26,7 @@ Add to your MCP client config (e.g. Claude Desktop's `claude_desktop_config.json
 }
 ```
 
-Restart your client. The agent now has twelve tools: web_search, news_search, scrape, geocode, nlp, email_verify, convert, qr (QR codes), feed (RSS/Atom → JSON), sitemap (site URLs), unfurl (link-preview metadata), and fx (currency conversion + rates).
+Restart your client. The agent now has thirteen tools: web_search, news_search, scrape, geocode, nlp, email_verify, convert, qr, feed, sitemap, unfurl, fx (currency), and dns (DNS records).
 
 ## Wallet
 

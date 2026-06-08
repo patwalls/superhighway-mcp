@@ -110,6 +110,14 @@ const FX_SCHEMA = {
   },
   required: ["from"],
 };
+const DNS_SCHEMA = {
+  type: "object",
+  properties: {
+    host: { type: "string", description: "The hostname to resolve (e.g. example.com)." },
+    type: { type: "string", description: "Record type: A (default), AAAA, MX, TXT, NS, CNAME, SOA." },
+  },
+  required: ["host"],
+};
 
 const clampLimit = (v) => (Number.isFinite(v) ? Math.max(1, Math.min(20, Number(v))) : 5);
 
@@ -225,6 +233,19 @@ const TOOLS = [
       const to = String(a.to ?? "").trim();
       const amt = a.amount != null ? `&amount=${encodeURIComponent(String(a.amount))}` : "";
       return to ? `/fx?from=${from}&to=${encodeURIComponent(to)}${amt}` : `/fx?from=${from}`;
+    },
+  },
+  {
+    name: "dns",
+    inputSchema: DNS_SCHEMA,
+    description:
+      "DNS lookup. Give a hostname (+ optional record type A/AAAA/MX/TXT/NS/CNAME/SOA) → its DNS records as JSON. Paid per call " +
+      "in USDC via x402 — no signup, no API key. Use for domain research, mail deliverability (MX), SPF/DKIM/DMARC (TXT), and " +
+      "verifying where a name points.",
+    build: (a) => {
+      const host = encodeURIComponent(String(a.host ?? "").trim());
+      const type = String(a.type ?? "").trim();
+      return type ? `/dns?host=${host}&type=${encodeURIComponent(type)}` : `/dns?host=${host}`;
     },
   },
 ];
