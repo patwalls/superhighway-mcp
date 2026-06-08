@@ -19,5 +19,30 @@
     "viem": "^2.21.0",
     "x402-fetch": "^0.6.0"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/patwalls/superhighway-mcp.git"
+  },
+  "homepage": "https://superhighway.walls.sh",
+  "bugs": {
+    "url": "https://github.com/patwalls/superhighway-mcp/issues"
+  },
+  "author": "Pat Walls",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "x402",
+    "ai-agents",
+    "claude",
+    "web-search",
+    "scrape",
+    "geocode",
+    "nlp",
+    "email-verification",
+    "qr",
+    "usdc",
+    "base",
+    "agent-tools"
+  ]
 }
