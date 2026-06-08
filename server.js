@@ -50,6 +50,15 @@ const SCRAPE_SCHEMA = {
   properties: { url: { type: "string", description: "The page URL to read (http/https)." } },
   required: ["url"],
 };
+const GEOCODE_SCHEMA = {
+  type: "object",
+  properties: {
+    query: { type: "string", description: "Address or place to geocode (forward)." },
+    lat: { type: "number", description: "Latitude for reverse geocoding (pair with lon)." },
+    lon: { type: "number", description: "Longitude for reverse geocoding (pair with lat)." },
+  },
+  required: [],
+};
 
 const clampLimit = (v) => (Number.isFinite(v) ? Math.max(1, Math.min(20, Number(v))) : 5);
 
@@ -81,9 +90,21 @@ const TOOLS = [
       "the agent read pages, fetch articles/docs it can't access, scrape content, and feed RAG.",
     build: (a) => `/scrape?url=${encodeURIComponent(String(a.url ?? "").trim())}`,
   },
+  {
+    name: "geocode",
+    inputSchema: GEOCODE_SCHEMA,
+    description:
+      "Geocoding for AI agents. Forward: give 'query' (an address or place) → latitude, longitude, " +
+      "and structured address. Reverse: give 'lat' and 'lon' → the address at that point. Paid per " +
+      "call in USDC via x402 — no signup, no API key. Use to resolve locations and add coordinates.",
+    build: (a) =>
+      a.lat != null && a.lon != null
+        ? `/geocode?lat=${encodeURIComponent(String(a.lat))}&lon=${encodeURIComponent(String(a.lon))}`
+        : `/geocode?q=${encodeURIComponent(String(a.query ?? "").trim())}`,
+  },
 ];
 
-const server = new Server({ name: "superhighway", version: "0.3.0" }, { capabilities: { tools: {} } });
+const server = new Server({ name: "superhighway", version: "0.4.0" }, { capabilities: { tools: {} } });
 
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
   tools: TOOLS.map((t) => ({ name: t.name, description: t.description, inputSchema: t.inputSchema })),

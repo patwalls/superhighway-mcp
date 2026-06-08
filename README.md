@@ -26,7 +26,7 @@ Add to your MCP client config (e.g. Claude Desktop's `claude_desktop_config.json
 }
 ```
 
-Restart your client. The agent now has three tools: **`web_search`**, **`news_search`** (recent news), and **`scrape`** (read any page as markdown).
+Restart your client. The agent now has four tools: **`web_search`**, **`news_search`**, **`scrape`** (read any page as markdown), and **`geocode`** (address ↔ coordinates).
 
 ## Wallet
 
