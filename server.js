@@ -101,6 +101,15 @@ const UNFURL_SCHEMA = {
   properties: { url: { type: "string", description: "The page URL to unfurl into a link-preview card." } },
   required: ["url"],
 };
+const FX_SCHEMA = {
+  type: "object",
+  properties: {
+    from: { type: "string", description: "Base currency, 3-letter code (e.g. USD)." },
+    to: { type: "string", description: "Target currency; omit to get all rates for the base." },
+    amount: { type: "number", description: "Amount to convert (default 1)." },
+  },
+  required: ["from"],
+};
 
 const clampLimit = (v) => (Number.isFinite(v) ? Math.max(1, Math.min(20, Number(v))) : 5);
 
@@ -203,6 +212,20 @@ const TOOLS = [
       "(OpenGraph → Twitter Card → standard meta). Paid per call in USDC via x402 — no signup, no API key. Use to render link " +
       "previews and enrich URLs without downloading the whole page (lighter than scrape).",
     build: (a) => `/unfurl?url=${encodeURIComponent(String(a.url ?? "").trim())}`,
+  },
+  {
+    name: "fx",
+    inputSchema: FX_SCHEMA,
+    description:
+      "Currency conversion + exchange rates. Give 'from' + 'to' (+ optional 'amount') to convert at the latest ECB reference " +
+      "rate, or just 'from' to get all of that currency's latest rates. Paid per call in USDC via x402 — no signup, no API key. " +
+      "Use to price, convert, and reason about money across currencies mid-task.",
+    build: (a) => {
+      const from = encodeURIComponent(String(a.from ?? "").trim());
+      const to = String(a.to ?? "").trim();
+      const amt = a.amount != null ? `&amount=${encodeURIComponent(String(a.amount))}` : "";
+      return to ? `/fx?from=${from}&to=${encodeURIComponent(to)}${amt}` : `/fx?from=${from}`;
+    },
   },
 ];
 
