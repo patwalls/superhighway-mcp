@@ -26,7 +26,7 @@ Add to your MCP client config (e.g. Claude Desktop's `claude_desktop_config.json
 }
 ```
 
-Restart your client. The agent now has two tools: **`web_search(query, limit?)`** and **`news_search(query, limit?)`** (recent news).
+Restart your client. The agent now has three tools: **`web_search`**, **`news_search`** (recent news), and **`scrape`** (read any page as markdown).
 
 ## Wallet
 

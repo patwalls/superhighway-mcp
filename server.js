@@ -5,7 +5,7 @@ import { CallToolRequestSchema, ListToolsRequestSchema } from "@modelcontextprot
 import { wrapFetchWithPayment, createSigner } from "x402-fetch";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Superhighway MCP server — paid search tools for any MCP agent (Claude, etc.).
+// Superhighway MCP server — paid web tools for any MCP agent (Claude, etc.).
 //
 // The agent calls a tool; under the hood this server GETs Superhighway's paid
 // endpoint, receives a 402, signs a USDC micro-payment with YOUR wallet
@@ -27,7 +27,7 @@ let payFetch = null;
 async function getPayFetch() {
   if (!PRIVATE_KEY) {
     throw new Error(
-      "AGENT_PRIVATE_KEY is not set. Provide a funded Base wallet key so the server can pay $0.001/search in USDC."
+      "AGENT_PRIVATE_KEY is not set. Provide a funded Base wallet key so the server can pay per call in USDC."
     );
   }
   if (!payFetch) {
@@ -37,26 +37,7 @@ async function getPayFetch() {
   return payFetch;
 }
 
-const TOOLS = [
-  {
-    name: "web_search",
-    path: "/search",
-    description:
-      "Real-time web search. Returns ranked organic results (title, url, snippet) as JSON " +
-      "from a multi-engine metasearch. Paid per call in USDC via x402 — no signup, no API key. " +
-      "Use for fresh facts, research, fact-checking, and grounding/RAG.",
-  },
-  {
-    name: "news_search",
-    path: "/news",
-    description:
-      "Real-time news search. Returns recent news articles (title, url, snippet, published date) " +
-      "as JSON from a multi-engine news metasearch. Paid per call in USDC via x402 — no signup, " +
-      "no API key. Use for current events, breaking news, monitoring, and time-sensitive facts.",
-  },
-];
-
-const inputSchema = {
+const SEARCH_SCHEMA = {
   type: "object",
   properties: {
     query: { type: "string", description: "The search query." },
@@ -64,26 +45,62 @@ const inputSchema = {
   },
   required: ["query"],
 };
+const SCRAPE_SCHEMA = {
+  type: "object",
+  properties: { url: { type: "string", description: "The page URL to read (http/https)." } },
+  required: ["url"],
+};
 
-const server = new Server({ name: "superhighway", version: "0.2.0" }, { capabilities: { tools: {} } });
+const clampLimit = (v) => (Number.isFinite(v) ? Math.max(1, Math.min(20, Number(v))) : 5);
+
+const TOOLS = [
+  {
+    name: "web_search",
+    inputSchema: SEARCH_SCHEMA,
+    description:
+      "Real-time web search. Returns ranked organic results (title, url, snippet) as JSON " +
+      "from a multi-engine metasearch. Paid per call in USDC via x402 — no signup, no API key. " +
+      "Use for fresh facts, research, fact-checking, and grounding/RAG.",
+    build: (a) => `/search?q=${encodeURIComponent(String(a.query ?? "").trim())}&limit=${clampLimit(a.limit)}`,
+  },
+  {
+    name: "news_search",
+    inputSchema: SEARCH_SCHEMA,
+    description:
+      "Real-time news search. Returns recent news articles (title, url, snippet, published date) " +
+      "as JSON from a multi-engine news metasearch. Paid per call in USDC via x402 — no signup, " +
+      "no API key. Use for current events, breaking news, monitoring, and time-sensitive facts.",
+    build: (a) => `/news?q=${encodeURIComponent(String(a.query ?? "").trim())}&limit=${clampLimit(a.limit)}`,
+  },
+  {
+    name: "scrape",
+    inputSchema: SCRAPE_SCHEMA,
+    description:
+      "Read any web page as clean text + markdown. Give a URL, get back the page title, readable " +
+      "markdown, and plain text. Paid per call in USDC via x402 — no signup, no API key. Use to let " +
+      "the agent read pages, fetch articles/docs it can't access, scrape content, and feed RAG.",
+    build: (a) => `/scrape?url=${encodeURIComponent(String(a.url ?? "").trim())}`,
+  },
+];
+
+const server = new Server({ name: "superhighway", version: "0.3.0" }, { capabilities: { tools: {} } });
 
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
-  tools: TOOLS.map((t) => ({ name: t.name, description: t.description, inputSchema })),
+  tools: TOOLS.map((t) => ({ name: t.name, description: t.description, inputSchema: t.inputSchema })),
 }));
 
 server.setRequestHandler(CallToolRequestSchema, async (req) => {
   const tool = TOOLS.find((t) => t.name === req.params.name);
   if (!tool) throw new Error(`Unknown tool: ${req.params.name}`);
   const args = req.params.arguments ?? {};
-  const query = String(args.query ?? "").trim();
-  if (!query) {
-    return { content: [{ type: "text", text: "Error: 'query' is required." }], isError: true };
+  for (const key of tool.inputSchema.required) {
+    if (!String(args[key] ?? "").trim()) {
+      return { content: [{ type: "text", text: `Error: '${key}' is required.` }], isError: true };
+    }
   }
-  const limit = Number.isFinite(args.limit) ? Math.max(1, Math.min(20, Number(args.limit))) : 5;
   try {
     const pay = await getPayFetch();
-    const url = `${BASE_URL}${tool.path}?q=${encodeURIComponent(query)}&limit=${limit}`;
-    const res = await pay(url, { method: "GET" });
+    const res = await pay(`${BASE_URL}${tool.build(args)}`, { method: "GET" });
     if (!res.ok) {
       const body = await res.text();
       return { content: [{ type: "text", text: `Request failed (${res.status}): ${body}` }], isError: true };
