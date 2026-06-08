@@ -69,6 +69,15 @@ const EMAIL_SCHEMA = {
   properties: { email: { type: "string", description: "The email address to verify." } },
   required: ["email"],
 };
+const CONVERT_SCHEMA = {
+  type: "object",
+  properties: {
+    from: { type: "string", description: "Source format: csv, json, md, or html." },
+    to: { type: "string", description: "Target format: json, csv, html, md, or text." },
+    data: { type: "string", description: "The content to convert." },
+  },
+  required: ["from", "to", "data"],
+};
 
 const clampLimit = (v) => (Number.isFinite(v) ? Math.max(1, Math.min(20, Number(v))) : 5);
 
@@ -130,9 +139,18 @@ const TOOLS = [
       "x402 — no signup, no API key. Use to clean lists and qualify contacts before outreach.",
     build: (a) => `/email/verify?email=${encodeURIComponent(String(a.email ?? "").trim())}`,
   },
+  {
+    name: "convert",
+    inputSchema: CONVERT_SCHEMA,
+    description:
+      "Convert data between formats: csv↔json, markdown→html, html→markdown, html→text. Paid per " +
+      "call in USDC via x402 — no signup, no API key. Use as pipeline glue to transform formats.",
+    build: (a) =>
+      `/convert?from=${encodeURIComponent(String(a.from ?? "").trim())}&to=${encodeURIComponent(String(a.to ?? "").trim())}&data=${encodeURIComponent(String(a.data ?? ""))}`,
+  },
 ];
 
-const server = new Server({ name: "superhighway", version: "0.6.0" }, { capabilities: { tools: {} } });
+const server = new Server({ name: "superhighway", version: "0.7.0" }, { capabilities: { tools: {} } });
 
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
   tools: TOOLS.map((t) => ({ name: t.name, description: t.description, inputSchema: t.inputSchema })),
