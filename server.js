@@ -86,6 +86,11 @@ const QR_SCHEMA = {
   },
   required: ["data"],
 };
+const FEED_SCHEMA = {
+  type: "object",
+  properties: { url: { type: "string", description: "The RSS or Atom feed URL to parse." } },
+  required: ["url"],
+};
 
 const clampLimit = (v) => (Number.isFinite(v) ? Math.max(1, Math.min(20, Number(v))) : 5);
 
@@ -163,6 +168,14 @@ const TOOLS = [
       "Generate a QR code from text or a URL → an SVG string or PNG data-URI. Paid per call in USDC " +
       "via x402 — no signup, no API key. Use to embed scannable codes in generated content or links.",
     build: (a) => `/qr?data=${encodeURIComponent(String(a.data ?? ""))}&format=${encodeURIComponent(String(a.format ?? "svg"))}`,
+  },
+  {
+    name: "feed",
+    inputSchema: FEED_SCHEMA,
+    description:
+      "Parse an RSS or Atom feed → its title and recent items (title, link, date, snippet) as JSON. " +
+      "Paid per call in USDC via x402 — no signup, no API key. Use to monitor news, blogs, changelogs, and releases.",
+    build: (a) => `/feed?url=${encodeURIComponent(String(a.url ?? "").trim())}`,
   },
 ];
 
