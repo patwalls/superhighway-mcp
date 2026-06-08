@@ -91,6 +91,11 @@ const FEED_SCHEMA = {
   properties: { url: { type: "string", description: "The RSS or Atom feed URL to parse." } },
   required: ["url"],
 };
+const SITEMAP_SCHEMA = {
+  type: "object",
+  properties: { url: { type: "string", description: "A sitemap URL or a site root (we will try /sitemap.xml)." } },
+  required: ["url"],
+};
 
 const clampLimit = (v) => (Number.isFinite(v) ? Math.max(1, Math.min(20, Number(v))) : 5);
 
@@ -176,6 +181,14 @@ const TOOLS = [
       "Parse an RSS or Atom feed → its title and recent items (title, link, date, snippet) as JSON. " +
       "Paid per call in USDC via x402 — no signup, no API key. Use to monitor news, blogs, changelogs, and releases.",
     build: (a) => `/feed?url=${encodeURIComponent(String(a.url ?? "").trim())}`,
+  },
+  {
+    name: "sitemap",
+    inputSchema: SITEMAP_SCHEMA,
+    description:
+      "Fetch a websites sitemap → the list of page URLs as JSON (handles sitemap indexes; give a sitemap URL or a site root). " +
+      "Paid per call in USDC via x402 — no signup, no API key. Use to map a sites pages before crawling, auditing, or research.",
+    build: (a) => `/sitemap?url=${encodeURIComponent(String(a.url ?? "").trim())}`,
   },
 ];
 
