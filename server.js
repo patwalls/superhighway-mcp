@@ -153,6 +153,14 @@ const JWT_SCHEMA = {
   properties: { token: { type: "string", description: "The JWT to decode (signature is not verified)." } },
   required: ["token"],
 };
+const DIFF_SCHEMA = {
+  type: "object",
+  properties: {
+    a: { type: "string", description: "The first (original) text." },
+    b: { type: "string", description: "The second (changed) text." },
+  },
+  required: ["a", "b"],
+};
 
 const clampLimit = (v) => (Number.isFinite(v) ? Math.max(1, Math.min(20, Number(v))) : 5);
 
@@ -336,6 +344,14 @@ const TOOLS = [
       "only — does NOT verify the signature. Paid per call in USDC via x402 — no signup, no API key. Use to inspect token " +
       "claims, scopes, and expiry.",
     build: (a) => `/jwt?token=${encodeURIComponent(String(a.token ?? "").trim())}`,
+  },
+  {
+    name: "diff",
+    inputSchema: DIFF_SCHEMA,
+    description:
+      "Line diff of two texts → the added/removed/unchanged counts, per-line ops, and a unified-diff string. Paid per call " +
+      "in USDC via x402 — no signup, no API key. Use to compare versions, outputs, configs, or before/after.",
+    build: (a) => `/diff?a=${encodeURIComponent(String(a.a ?? ""))}&b=${encodeURIComponent(String(a.b ?? ""))}`,
   },
 ];
 
