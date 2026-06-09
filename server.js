@@ -134,6 +134,11 @@ const COLOR_SCHEMA = {
   },
   required: ["color"],
 };
+const CASE_SCHEMA = {
+  type: "object",
+  properties: { text: { type: "string", description: "The text to convert into every case form." } },
+  required: ["text"],
+};
 
 const clampLimit = (v) => (Number.isFinite(v) ? Math.max(1, Math.min(20, Number(v))) : 5);
 
@@ -286,6 +291,15 @@ const TOOLS = [
       "CSS color name. Paid per call in USDC via x402 — no signup, no API key. Use for theming, design/UI generation, and " +
       "normalizing colors.",
     build: (a) => `/color?color=${encodeURIComponent(String(a.color ?? "").trim())}`,
+  },
+  {
+    name: "case",
+    inputSchema: CASE_SCHEMA,
+    description:
+      "Convert text to every case form: camelCase, PascalCase, snake_case, kebab-case, CONSTANT_CASE, slug, Title Case, " +
+      "Sentence case, upper, lower. Paid per call in USDC via x402 — no signup, no API key. Use for code generation " +
+      "(variable/field names), slugs, and normalizing identifiers.",
+    build: (a) => `/case?text=${encodeURIComponent(String(a.text ?? ""))}`,
   },
 ];
 
