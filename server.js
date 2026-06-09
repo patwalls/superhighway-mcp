@@ -118,6 +118,15 @@ const DNS_SCHEMA = {
   },
   required: ["host"],
 };
+const HASH_SCHEMA = {
+  type: "object",
+  properties: {
+    text: { type: "string", description: "The text to hash." },
+    algo: { type: "string", description: "md5, sha1, sha256 (default), sha384, sha512." },
+    encoding: { type: "string", description: "hex (default), base64, base64url." },
+  },
+  required: ["text"],
+};
 
 const clampLimit = (v) => (Number.isFinite(v) ? Math.max(1, Math.min(20, Number(v))) : 5);
 
@@ -246,6 +255,20 @@ const TOOLS = [
       const host = encodeURIComponent(String(a.host ?? "").trim());
       const type = String(a.type ?? "").trim();
       return type ? `/dns?host=${host}&type=${encodeURIComponent(type)}` : `/dns?host=${host}`;
+    },
+  },
+  {
+    name: "hash",
+    inputSchema: HASH_SCHEMA,
+    description:
+      "Hash text with a chosen algorithm (md5/sha1/sha256/sha384/sha512) and encoding (hex/base64/base64url) → the digest. " +
+      "Paid per call in USDC via x402 — no signup, no API key. Use for content-addressing, dedup and cache/ETag keys, and " +
+      "integrity checks.",
+    build: (a) => {
+      const text = `text=${encodeURIComponent(String(a.text ?? ""))}`;
+      const algo = a.algo ? `&algo=${encodeURIComponent(String(a.algo))}` : "";
+      const enc = a.encoding ? `&encoding=${encodeURIComponent(String(a.encoding))}` : "";
+      return `/hash?${text}${algo}${enc}`;
     },
   },
 ];
