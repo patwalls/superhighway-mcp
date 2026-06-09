@@ -3,8 +3,8 @@
   "name": "io.github.patwalls/superhighway-mcp",
   "description": "Paid web tools for AI agents — search, news, scrape, geocode, nlp, email verify, convert, qr. Pay per call in USDC via x402, no API key, no signup.",
   "repository": { "url": "https://github.com/patwalls/superhighway-mcp", "source": "github" },
-  "version": "0.16.0",
+  "version": "0.17.0",
   "packages": [
-    { "registryType": "npm", "identifier": "superhighway-mcp", "version": "0.16.0", "transport": { "type": "stdio" } }
+    { "registryType": "npm", "identifier": "superhighway-mcp", "version": "0.17.0", "transport": { "type": "stdio" } }
   ]
 }

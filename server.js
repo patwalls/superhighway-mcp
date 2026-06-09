@@ -139,6 +139,15 @@ const CASE_SCHEMA = {
   properties: { text: { type: "string", description: "The text to convert into every case form." } },
   required: ["text"],
 };
+const BASE64_SCHEMA = {
+  type: "object",
+  properties: {
+    text: { type: "string", description: "The text to encode, or the base64 to decode." },
+    op: { type: "string", description: "encode (default) or decode." },
+    urlsafe: { type: "boolean", description: "Use url-safe base64." },
+  },
+  required: ["text"],
+};
 
 const clampLimit = (v) => (Number.isFinite(v) ? Math.max(1, Math.min(20, Number(v))) : 5);
 
@@ -300,6 +309,19 @@ const TOOLS = [
       "Sentence case, upper, lower. Paid per call in USDC via x402 — no signup, no API key. Use for code generation " +
       "(variable/field names), slugs, and normalizing identifiers.",
     build: (a) => `/case?text=${encodeURIComponent(String(a.text ?? ""))}`,
+  },
+  {
+    name: "base64",
+    inputSchema: BASE64_SCHEMA,
+    description:
+      "Base64 encode or decode. Encode text → base64 (standard or url-safe), or decode base64 → text. Paid per call in USDC " +
+      "via x402 — no signup, no API key. Use for data URIs, transporting/embedding text, and decoding tokens or blobs.",
+    build: (a) => {
+      const text = `text=${encodeURIComponent(String(a.text ?? ""))}`;
+      const op = a.op ? `&op=${encodeURIComponent(String(a.op))}` : "";
+      const us = a.urlsafe ? `&urlsafe=true` : "";
+      return `/base64?${text}${op}${us}`;
+    },
   },
 ];
 

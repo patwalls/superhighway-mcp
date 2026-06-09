@@ -26,7 +26,7 @@ Add to your MCP client config (e.g. Claude Desktop's `claude_desktop_config.json
 }
 ```
 
-Restart your client. The agent now has sixteen tools: web_search, news_search, scrape, geocode, nlp, email_verify, convert, qr, feed, sitemap, unfurl, fx (currency), dns (DNS records), hash (md5/sha/etc), color (hex/rgb/hsl), and case (camel/snake/kebab/etc).
+Restart your client. The agent now has seventeen tools: web_search, news_search, scrape, geocode, nlp, email_verify, convert, qr, feed, sitemap, unfurl, fx (currency), dns (DNS records), hash (md5/sha/etc), color (hex/rgb/hsl), case (camel/snake/kebab/etc), and base64 (encode/decode).
 
 ## Wallet
 
