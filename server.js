@@ -161,6 +161,11 @@ const DIFF_SCHEMA = {
   },
   required: ["a", "b"],
 };
+const TEXTSTATS_SCHEMA = {
+  type: "object",
+  properties: { text: { type: "string", description: "The text to measure." } },
+  required: ["text"],
+};
 
 const clampLimit = (v) => (Number.isFinite(v) ? Math.max(1, Math.min(20, Number(v))) : 5);
 
@@ -352,6 +357,14 @@ const TOOLS = [
       "Line diff of two texts → the added/removed/unchanged counts, per-line ops, and a unified-diff string. Paid per call " +
       "in USDC via x402 — no signup, no API key. Use to compare versions, outputs, configs, or before/after.",
     build: (a) => `/diff?a=${encodeURIComponent(String(a.a ?? ""))}&b=${encodeURIComponent(String(a.b ?? ""))}`,
+  },
+  {
+    name: "text_stats",
+    inputSchema: TEXTSTATS_SCHEMA,
+    description:
+      "Text statistics → character/word/sentence/line/paragraph counts, reading & speaking time, and averages. Paid per call " +
+      "in USDC via x402 — no signup, no API key. Use for length checks, reading-time estimates, SEO/tweet limits, and ratios.",
+    build: (a) => `/text-stats?text=${encodeURIComponent(String(a.text ?? ""))}`,
   },
 ];
 
