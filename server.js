@@ -166,6 +166,11 @@ const TEXTSTATS_SCHEMA = {
   properties: { text: { type: "string", description: "The text to measure." } },
   required: ["text"],
 };
+const UUID_SCHEMA = {
+  type: "object",
+  properties: { count: { type: "number", description: "How many UUIDs to generate, 1–100 (default 1)." } },
+  required: [],
+};
 
 const clampLimit = (v) => (Number.isFinite(v) ? Math.max(1, Math.min(20, Number(v))) : 5);
 
@@ -365,6 +370,14 @@ const TOOLS = [
       "Text statistics → character/word/sentence/line/paragraph counts, reading & speaking time, and averages. Paid per call " +
       "in USDC via x402 — no signup, no API key. Use for length checks, reading-time estimates, SEO/tweet limits, and ratios.",
     build: (a) => `/text-stats?text=${encodeURIComponent(String(a.text ?? ""))}`,
+  },
+  {
+    name: "uuid",
+    inputSchema: UUID_SCHEMA,
+    description:
+      "Generate one or many (count, 1–100) RFC-4122 v4 UUIDs. Paid per call in USDC via x402 — no signup, no API key. Use for " +
+      "record ids, idempotency/correlation keys, and test fixtures.",
+    build: (a) => (a.count != null ? `/uuid?count=${encodeURIComponent(String(a.count))}` : `/uuid`),
   },
 ];
 
