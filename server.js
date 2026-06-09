@@ -127,6 +127,13 @@ const HASH_SCHEMA = {
   },
   required: ["text"],
 };
+const COLOR_SCHEMA = {
+  type: "object",
+  properties: {
+    color: { type: "string", description: "A color: #ff0000, rgb(255,0,0), hsl(0,100%,50%), or a CSS name." },
+  },
+  required: ["color"],
+};
 
 const clampLimit = (v) => (Number.isFinite(v) ? Math.max(1, Math.min(20, Number(v))) : 5);
 
@@ -270,6 +277,15 @@ const TOOLS = [
       const enc = a.encoding ? `&encoding=${encodeURIComponent(String(a.encoding))}` : "";
       return `/hash?${text}${algo}${enc}`;
     },
+  },
+  {
+    name: "color",
+    inputSchema: COLOR_SCHEMA,
+    description:
+      "Convert a color given as hex, rgb(), hsl(), or a CSS name → every representation (hex, rgb, hsl) plus the matching/nearest " +
+      "CSS color name. Paid per call in USDC via x402 — no signup, no API key. Use for theming, design/UI generation, and " +
+      "normalizing colors.",
+    build: (a) => `/color?color=${encodeURIComponent(String(a.color ?? "").trim())}`,
   },
 ];
 
