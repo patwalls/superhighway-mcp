@@ -148,6 +148,11 @@ const BASE64_SCHEMA = {
   },
   required: ["text"],
 };
+const JWT_SCHEMA = {
+  type: "object",
+  properties: { token: { type: "string", description: "The JWT to decode (signature is not verified)." } },
+  required: ["token"],
+};
 
 const clampLimit = (v) => (Number.isFinite(v) ? Math.max(1, Math.min(20, Number(v))) : 5);
 
@@ -322,6 +327,15 @@ const TOOLS = [
       const us = a.urlsafe ? `&urlsafe=true` : "";
       return `/base64?${text}${op}${us}`;
     },
+  },
+  {
+    name: "jwt",
+    inputSchema: JWT_SCHEMA,
+    description:
+      "Decode a JSON Web Token → its header + payload (claims) with readable iat/exp/nbf times and an expiry flag. Decodes " +
+      "only — does NOT verify the signature. Paid per call in USDC via x402 — no signup, no API key. Use to inspect token " +
+      "claims, scopes, and expiry.",
+    build: (a) => `/jwt?token=${encodeURIComponent(String(a.token ?? "").trim())}`,
   },
 ];
 
