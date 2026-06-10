@@ -1,7 +1,7 @@
 {
   "name": "superhighway-mcp",
-  "version": "1.0.0",
-  "description": "Web search for AI agents, as an MCP server \u2014 live web search, news, and read-any-page-as-markdown (scrape). The agent pays per call in USDC via x402: no API key, no signup. Powered by Superhighway.",
+  "version": "1.1.0",
+  "description": "Web search for AI agents, as an MCP server \u2014 live web search, news, read-any-page-as-markdown (scrape), and one-call research (search + read). The agent pays per call in USDC via x402: no API key, no signup. Powered by Superhighway.",
   "type": "module",
   "bin": {
     "superhighway-mcp": "server.js"

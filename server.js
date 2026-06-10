@@ -50,6 +50,14 @@ const SCRAPE_SCHEMA = {
   properties: { url: { type: "string", description: "The page URL to read (http/https)." } },
   required: ["url"],
 };
+const RESEARCH_SCHEMA = {
+  type: "object",
+  properties: {
+    query: { type: "string", description: "The question or topic to research." },
+    pages: { type: "number", description: "How many top results to read as markdown, 1-3 (default 2)." },
+  },
+  required: ["query"],
+};
 
 const clampLimit = (v) => (Number.isFinite(v) ? Math.max(1, Math.min(20, Number(v))) : 5);
 
@@ -81,9 +89,19 @@ const TOOLS = [
       "the agent read pages, fetch articles/docs it can't access, scrape content, and feed RAG.",
     build: (a) => `/scrape?url=${encodeURIComponent(String(a.url ?? "").trim())}`,
   },
+  {
+    name: "research",
+    inputSchema: RESEARCH_SCHEMA,
+    description:
+      "One-call web research: searches the live web AND reads the top result pages as clean markdown — " +
+      "content, not just links. Give a question, get ranked results plus the readable text of the best " +
+      "pages ($0.005/call in USDC via x402 — no signup, no API key). Use to answer questions from fresh " +
+      "sources in a single tool call instead of search-then-scrape round-trips.",
+    build: (a) => `/research?q=${encodeURIComponent(String(a.query ?? "").trim())}&pages=${Math.min(3, Math.max(1, Number(a.pages) || 2))}`,
+  },
 ];
 
-const server = new Server({ name: "superhighway", version: "1.0.0" }, { capabilities: { tools: {} } });
+const server = new Server({ name: "superhighway", version: "1.1.0" }, { capabilities: { tools: {} } });
 
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
   tools: TOOLS.map((t) => ({ name: t.name, description: t.description, inputSchema: t.inputSchema })),
