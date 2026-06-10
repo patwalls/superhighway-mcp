@@ -99,9 +99,18 @@ const TOOLS = [
       "sources in a single tool call instead of search-then-scrape round-trips.",
     build: (a) => `/research?q=${encodeURIComponent(String(a.query ?? "").trim())}&pages=${Math.min(3, Math.max(1, Number(a.pages) || 2))}`,
   },
+  {
+    name: "image_search",
+    inputSchema: SEARCH_SCHEMA,
+    description:
+      "Image search. Returns direct image URLs, source pages, and thumbnails as JSON from a " +
+      "multi-engine image metasearch. Paid per call in USDC via x402 — no signup, no API key. " +
+      "Use for visual grounding, finding images for content generation, and multimodal research.",
+    build: (a) => `/images?q=${encodeURIComponent(String(a.query ?? "").trim())}&limit=${clampLimit(a.limit)}`,
+  },
 ];
 
-const server = new Server({ name: "superhighway", version: "1.1.0" }, { capabilities: { tools: {} } });
+const server = new Server({ name: "superhighway", version: "1.2.0" }, { capabilities: { tools: {} } });
 
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
   tools: TOOLS.map((t) => ({ name: t.name, description: t.description, inputSchema: t.inputSchema })),
