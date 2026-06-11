@@ -1,17 +1,17 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.patwalls/superhighway-mcp",
-  "description": "Web search for AI agents \u2014 live web search, news, and read-any-page-as-markdown. Pay per call in USDC via x402; no API key, no signup.",
+  "description": "Web search for AI agents — live web search, news, image search, read-any-page-as-markdown (scrape), and one-call research (search + read). Pay per call in USDC via x402, or use a free API key. Five tools: web_search, news_search, image_search, scrape, research.",
   "repository": {
     "url": "https://github.com/patwalls/superhighway-mcp",
     "source": "github"
   },
-  "version": "1.1.0",
+  "version": "1.2.0",
   "packages": [
     {
       "registryType": "npm",
       "identifier": "superhighway-mcp",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "transport": {
         "type": "stdio"
       }
